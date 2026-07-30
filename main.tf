@@ -9,15 +9,22 @@ terraform {
 
 provider "azurerm" {
   features {}
+  # Skips Azure's automatic resource provider registration check on every plan/apply.
+  # Without this, a stalled provider registration (e.g. Microsoft.DataMigration) can
+  # hang terraform plan for no visible reason. Safe to leave on once your subscription
+  # already has the providers you need (Compute, Network, etc.) registered.
   skip_provider_registration = true
 }
 
+# Logical container for every resource this lab creates. Deleting this group
+# (via terraform destroy) removes everything inside it in one shot.
 resource "azurerm_resource_group" "main" {
   name     = "rg-ad-${var.yourname}"
   location = var.location
   tags     = var.tags
 }
 
+# Private network the domain controller lives on.
 resource "azurerm_virtual_network" "main" {
   name                = "vnet-ad-${var.yourname}"
   location            = var.location
@@ -33,6 +40,7 @@ resource "azurerm_subnet" "main" {
   address_prefixes     = ["10.0.1.0/24"]
 }
 
+# Static public IP so the VM's address doesn't change on reboot.
 resource "azurerm_public_ip" "main" {
   name                = "pip-ad-${var.yourname}"
   location            = var.location
@@ -42,6 +50,8 @@ resource "azurerm_public_ip" "main" {
   tags                = var.tags
 }
 
+# Firewall rule for the VM's network interface. RDP (3389) is scoped to a single
+# IP via var.rdp_source, never a wildcard, so the front door isn't open to the internet.
 resource "azurerm_network_security_group" "main" {
   name                = "nsg-ad-${var.yourname}"
   location            = var.location
@@ -62,6 +72,7 @@ resource "azurerm_network_security_group" "main" {
   tags = var.tags
 }
 
+# Virtual NIC connecting the VM to the subnet and public IP.
 resource "azurerm_network_interface" "main" {
   name                = "nic-ad-${var.yourname}"
   location            = var.location
@@ -78,11 +89,14 @@ resource "azurerm_network_interface" "main" {
   tags = var.tags
 }
 
+# Attaches the NSG's firewall rules to the NIC. Without this association,
+# the NSG exists but doesn't actually filter any traffic.
 resource "azurerm_network_interface_security_group_association" "main" {
-  network_interface_id      = azurerm_network_interface.main.id
+  network_interface_id     = azurerm_network_interface.main.id
   network_security_group_id = azurerm_network_security_group.main.id
 }
 
+# The Windows Server 2022 VM itself.
 resource "azurerm_windows_virtual_machine" "main" {
   name                  = "vm-ad-${var.yourname}"
   computer_name         = "ad-${var.yourname}"
@@ -109,6 +123,10 @@ resource "azurerm_windows_virtual_machine" "main" {
   tags = var.tags
 }
 
+# Runs automatically once the VM boots. Installs the AD DS role and promotes
+# the server to a brand new Active Directory forest. The install command lives
+# in protected_settings, not settings, so the DSRM password inside it stays
+# encrypted instead of sitting in plain text on the VM.
 resource "azurerm_virtual_machine_extension" "ad_setup" {
   name                 = "install-ad-ds"
   virtual_machine_id   = azurerm_windows_virtual_machine.main.id
