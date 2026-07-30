@@ -16,6 +16,8 @@ A single `terraform apply` stands up:
 - A Windows Server 2022 virtual machine
 - A custom script extension that installs AD DS and promotes the VM to a new Active Directory forest
 
+![Architecture: what gets built, and in what order](screenshots/terraform_block_diagram.png)
+
 **9 resources total, in dependency order:**
 
 ```
