@@ -35,7 +35,7 @@ resource_group
 
 
 ```
-<img width="444" height="385" alt="terraform_block_diagram" src="https://github.com/user-attachments/assets/5a4889a1-fefe-4a33-849f-40a1665f1664" />
+
 
 
 
