@@ -32,12 +32,7 @@ resource_group
                             └── windows_virtual_machine
                                         │
                                         └── vm_extension (installs AD DS)
-
-
 ```
-
-
-
 
 ## Prerequisites
 
@@ -59,7 +54,11 @@ Verify everything is ready:
 
 ```powershell
 az --version
+```
+```powershell
 az account show
+```
+```powershell
 terraform -version
 ```
 
@@ -83,7 +82,11 @@ az-ad-vm/
 
 ```powershell
 mkdir C:\repos\az-ad-vm
+```
+```powershell
 cd C:\repos\az-ad-vm
+```
+```powershell
 New-Item -ItemType File -Name main.tf, variables.tf, outputs.tf, terraform.tfvars, .gitignore
 ```
 
@@ -133,7 +136,11 @@ This is the single most common beginner mistake with Terraform: committing `terr
 
 ```powershell
 terraform init
+```
+```powershell
 terraform plan
+```
+```powershell
 terraform apply
 ```
 
