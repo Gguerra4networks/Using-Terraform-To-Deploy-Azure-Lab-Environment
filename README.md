@@ -1,5 +1,9 @@
 # Using Terraform to Deploy an Azure Active Directory Lab Environment
 
+🎬 Watch Me Build This Lab!
+https://www.loom.com/share/b5cf618ad25b4d568402785025b5057c
+
+
 Windows Server 2022 | Azure | Terraform | Active Directory Domain Services
 
 A Terraform lab that builds a fully functioning Active Directory domain controller in Azure from a handful of text files, no manual clicking through the Azure Portal required.
